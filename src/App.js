@@ -3,35 +3,29 @@ import React, { useState, useEffect } from 'react';
 // Mimic Json file input
 const  { roomDimensions, initialRoombaLocation, dirtLocations, drivingInstructions } = {
     roomDimensions: [10, 10],
-    initialRoombaLocation: [0, 0],
+    initialRoombaLocation: [1, 1],
     dirtLocations: [
-    [0, 0],
-    [0, 1],
-    [0, 2],
-    [0, 3],
-    [0, 4],
-    [0, 5],
-    [0, 6],
-    [0, 7],
-    [0, 8],
-    [0, 9],
-    ],
+        [1, 2],
+        [3, 5],
+        [5, 5],
+        [7, 9]
+        ],
     drivingInstructions: [
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E",
-    "E" 
+        "N",
+        "E",
+        "E",
+        "N",
+        "N",
+        "N",
+        "E",
+        "E",
+        "S",
+        "W",
+        "S",
+        "S",
+        "S",
+        "S",
+        "S"
     ]
    };
 
@@ -51,38 +45,37 @@ const roomify = () => {
 };
 
 const initRoom = roomify();
-console.log('Initial Room: ', initRoom);
-
 
 // Board Component 
 function Board() {
-    const [drvInstIndex, setDrvInstIndex] = useState(0);
+    const [drvInstIndex, setDrvInstIndex] = useState([0]);
     const [room, setRoom] = useState(initRoom);
-    const [location, setLocation] = useState(initialRoombaLocation);
-    const [count, setCount] = useState(0);
-    const [countCrash, setCountCrash] = useState(0);
+    const [location, setLocation] = useState([initialRoombaLocation]);
+    const [count, setCount] = useState([0]);
+    const [countCrash, setCountCrash] = useState([0]);
     
     // Update component everytime driving instructions updates every 1000 mls
-    useEffect(() => setTimeout(() => nextMove(), 10000), [drvInstIndex]);
+    useEffect(() => setTimeout(() => nextMove(), 1000), [drvInstIndex]);
+
+    const currentIndex = drvInstIndex[drvInstIndex.length-1];
 
     // update directions after every move 
     const nextMove = () => {
-        if (drivingInstructions[drvInstIndex]) {
+        if (drvInstIndex.length <= drivingInstructions.length-1) {
             moveToward();            
-            let i = drvInstIndex;
-            i++
-            setDrvInstIndex(i);
+            let i = drvInstIndex[drvInstIndex.length-1];
+            i++;
+            setDrvInstIndex([...drvInstIndex, i]);
         }
-        return;
     }
     
     // count dirts collected
     const countDirt = (x, y) => {
-        let newCount = count;
+        let newCount = count[currentIndex];
         let newRoom = room
         ++newCount;
         newRoom[x][y] = false;
-        setCount(newCount);
+        setCount([...count, newCount]);
         setRoom(newRoom);
         console.log('Dirt Collected: ', newCount);
         console.log('Room update: ', room);
@@ -90,61 +83,92 @@ function Board() {
 
     // count crashes on the walll
     const countCrashFunc = () => {
-        let newCountCrash = countCrash;
+        let newCountCrash = countCrash[currentIndex];
         ++newCountCrash;
-        setCountCrash(newCountCrash);
+        setCountCrash([...countCrash, newCountCrash]);
         console.log('Hits on wall: ', newCountCrash);
+        return location[currentIndex];
     }
 
     //handle Roomba movements around the room
     const moveToward = () => {
-        let newLocation = location;
-        const [x, y] = newLocation;  
+        console.log('current index: ', currentIndex);
+        const [x, y] = location[currentIndex];  
         if ( room[x][y] === true ) {
             countDirt(x, y);    
+        } else {
+            setCount([...count, count[currentIndex]]);
+
         }
-        switch(drivingInstructions[drvInstIndex]) {
+        let newLocation;
+        switch(drivingInstructions[currentIndex]) {
             case 'N':
-                console.log('N');
-                if ( location[0] > 0 ) {
-                    newLocation = [--location[0], location[1]];
-                    setLocation(newLocation);
-                    console.log('new location: ', newLocation);
-                } else countCrashFunc();
+                console.log('N', location[currentIndex]);
+                if ( location[currentIndex][0] > 0 ) {
+                    newLocation = [--location[currentIndex][0], location[currentIndex][1]];
+                    setCountCrash([...countCrash, countCrash[currentIndex]]);
+                    console.log('new location: ', location[currentIndex]);
+                } else newLocation = countCrashFunc();
                 break;
             case 'E':
-                console.log('E')
-                if ( location[1] < room[0].length-1 ) {
-                    newLocation = [location[0], ++location[1]];
-                    setLocation(newLocation);
-                    console.log('new location: ', newLocation);
-                } else countCrashFunc();
+                console.log('E', location[currentIndex]);
+                if ( location[currentIndex][1] < room[0].length-1 ) {
+                    newLocation = [location[currentIndex][0], ++location[currentIndex][1]];
+                    console.log('new location: ', location[currentIndex]);
+                    setCountCrash([...countCrash, countCrash[currentIndex]]);
+                } else newLocation = countCrashFunc();
+
                 break;
             case 'S':
-                console.log('S')
-                if ( location[0] < room.length-1 ) {
-                    newLocation = [++location[0], location[1]];
-                    setLocation(newLocation);
-                    console.log('new location: ', newLocation);
-                } else countCrashFunc();
+                console.log('S', location[currentIndex]);
+                if ( location[currentIndex][0] < room.length-1 ) {
+                    newLocation = [++location[currentIndex][0],location[currentIndex][1]] ;
+                    setCountCrash([...countCrash, countCrash[currentIndex]]);
+                    console.log('new location: ', location[currentIndex]);
+                } else newLocation = countCrashFunc();
+
                 break;
             case 'W':
-                console.log('W')
-                if ( location[1] > 0 ) {
-                    newLocation = [location[0], --location[1]];
-                    setLocation(newLocation);
-                    console.log('new location: ', newLocation);
-                } else countCrashFunc();
+                console.log('W', location[currentIndex]);
+                if ( location[currentIndex][1] > 0 ) {
+                    newLocation = [location[currentIndex][0], --location[currentIndex][1]];
+                    setCountCrash([...countCrash, countCrash[currentIndex]]);
+                    console.log('new location: ', location[currentIndex]);
+                } else newLocation = countCrashFunc();
+
                 break;
             default:
                 console.log('Waiting for directions!')
         }
+        setLocation([...location, newLocation]);
+
+    }
+
+    const renderTable = () => {
+        return drvInstIndex.map( step => {
+            return (
+                <tr key={step}>
+                    <td> {step+1} </td>
+                    <td> {location[step]} </td>
+                    <td> {drivingInstructions[step-1]} </td>
+                    <td> {count[step]} </td>
+                    <td> {countCrash[step]} </td>
+                </tr>
+            )
+        })
     }
 
     return (     
-        <>   
-            <p> Room </p>
-        </>
+        <table>
+            <tr>
+                <th> Step </th>
+                <th> Roomba Location</th>
+                <th> Action</th>
+                <th> Total Dirt Collected</th>
+                <th> Total Wall Hits </th>
+            </tr>
+            { renderTable() }
+        </table>
     )
 }
 export default Board;
