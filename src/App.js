@@ -1,35 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
-// Mimic Json file input
-const  { roomDimensions, initialRoombaLocation, dirtLocations, drivingInstructions } = {
-    roomDimensions: [10, 10],
-    initialRoombaLocation: [1, 1],
-    dirtLocations: [
-        [1, 2],
-        [3, 5],
-        [5, 5],
-        [7, 9]
-        ],
-    drivingInstructions: [
-        "N",
-        "E",
-        "E",
-        "N",
-        "N",
-        "N",
-        "E",
-        "E",
-        "S",
-        "W",
-        "S",
-        "S",
-        "S",
-        "S",
-        "S"
-    ]
-   };
+import { default as data } from './dataSet.json';
 
 // create a room, throw some dirts following the json file data  
+const  { roomDimensions, initialRoombaLocation, dirtLocations, drivingInstructions } = data;
 const roomify = () => {
     // create the room grid
     const  rows = Array(roomDimensions[0]).fill(null);
@@ -148,11 +121,11 @@ function Board() {
         return drvInstIndex.map( step => {
             return (
                 <tr key={step}>
-                    <td> {step+1} </td>
-                    <td> {location[step]} </td>
-                    <td> {drivingInstructions[step-1]} </td>
-                    <td> {count[step]} </td>
-                    <td> {countCrash[step]} </td>
+                    <td style={cell}> {step+1} </td>
+                    <td style={cell}> {location[step]} </td>
+                    <td style={cell}> {drivingInstructions[step-1]} </td>
+                    <td style={cell}> {count[step]} </td>
+                    <td style={cell}> {countCrash[step]} </td>
                 </tr>
             )
         })
@@ -174,17 +147,29 @@ function Board() {
                      Total Wall Hit: {countCrash[drivingInstructions.length-1] || 'Loding...'}
                 </li>
             </ul>
-            <table>
+            <table style={table}>
                 <tr>
-                    <th> Step </th>
-                    <th> Roomba Location</th>
-                    <th> Action</th>
-                    <th> Total Dirt Collected</th>
-                    <th> Total Wall Hits </th>
+                    <th style={cell}> Step </th>
+                    <th style={cell}> Roomba Location</th>
+                    <th style={cell}> Action</th>
+                    <th style={cell}> Total Dirt Collected</th>
+                    <th style={cell}> Total Wall Hits </th>
                 </tr>
                 { renderTable() }
             </table>
         </>
     )
+}
+const table = {
+    width: '100%',
+    border: '1px solid black', 
+    borderCollapse: 'collapse'
+
+}
+const cell = {
+    border: '1px solid black', 
+    borderBottom: '1px solid #ddd',
+    height: '25px',
+    textAlign: 'center',
 }
 export default Board;
