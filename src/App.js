@@ -158,17 +158,33 @@ function Board() {
         })
     }
 
-    return (     
-        <table>
-            <tr>
-                <th> Step </th>
-                <th> Roomba Location</th>
-                <th> Action</th>
-                <th> Total Dirt Collected</th>
-                <th> Total Wall Hits </th>
-            </tr>
-            { renderTable() }
-        </table>
+    return (    
+        <> 
+            <ul>
+                <li>
+                    Final Position: {location[drivingInstructions.length-1] || 'Loding...' }
+                </li>
+                <li>
+                     Total Dirt Collected: {count[drivingInstructions.length-1] || 'Loding...'}
+                </li>
+                <li>
+                    Total Distance Traveled: {location.length - countCrash[drivingInstructions.length-1] || 'Loding...'} 
+                </li>
+                <li>
+                     Total Wall Hit: {countCrash[drivingInstructions.length-1] || 'Loding...'}
+                </li>
+            </ul>
+            <table>
+                <tr>
+                    <th> Step </th>
+                    <th> Roomba Location</th>
+                    <th> Action</th>
+                    <th> Total Dirt Collected</th>
+                    <th> Total Wall Hits </th>
+                </tr>
+                { renderTable() }
+            </table>
+        </>
     )
 }
 export default Board;
